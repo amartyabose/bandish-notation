@@ -6,3 +6,210 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+.raga-container {
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 6px;
+    padding: 0.75em 1em;
+    margin: 0.5em 0;
+}
+
+.raga-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75em;
+    margin-bottom: 0.6em;
+}
+
+.raga-row-label {
+    font-weight: 700;
+    color: var(--text-accent);
+    min-width: 6em;
+    flex-shrink: 0;
+}
+
+.raga-swara-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6em;
+}
+
+.raga-comma {
+    color: var(--text-faint);
+    margin-right: 0.2em;
+    align-self: flex-end;
+}
+
+.raga-swara-cell {
+    font-size: 1.15em;
+    position: relative;
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
+}
+
+.bandish-komal {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.bandish-tivra {
+    position: relative;
+}
+.bandish-tivra::before {
+    content: "";
+    position: absolute;
+    top: -0.05em;
+    left: 50%;
+    width: 1.5px;
+    height: 0.5em;
+    background: currentColor;
+    transform: translateX(-50%);
+}
+
+.bandish-octave-taar {
+    position: relative;
+}
+.bandish-octave-taar::after {
+    content: "\00B7";
+    position: absolute;
+    top: -0.25em;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 900;
+}
+
+.bandish-octave-mandra {
+    position: relative;
+}
+.bandish-octave-mandra::after {
+    content: "\00B7";
+    position: absolute;
+    bottom: -0.25em;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 900;
+}
+
+.bandish-sargam-cell {
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
+}
+
+.bandish-container {
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 6px;
+    padding: 0.75em 1em;
+    margin: 0.5em 0;
+    font-size: 1.05em;
+}
+
+.bandish-meta {
+    display: flex;
+    gap: 1.25em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85em;
+}
+
+.bandish-composer {
+    font-style: italic;
+    font-weight: 400;
+}
+
+.bandish-section-title {
+    font-weight: 700;
+    margin-top: 0.75em;
+    margin-bottom: 0.25em;
+    color: var(--text-accent);
+}
+
+.bandish-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-bottom: 0.5em;
+    border-bottom: 1px dashed var(--background-modifier-border);
+    padding-bottom: 0.5em;
+}
+
+.bandish-vibhag {
+    display: grid;
+    grid-auto-rows: auto;
+    gap: 0.1em 0.4em;
+    padding: 0 0.4em;
+    border-left: 1px solid var(--background-modifier-border);
+}
+
+.bandish-vibhag:first-child {
+    border-left: none;
+}
+
+.bandish-marker {
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-accent);
+    font-size: 0.8em;
+    grid-row: 1;
+}
+
+.bandish-sargam-cell {
+    text-align: center;
+    font-size: 1.15em;
+    grid-row: 2;
+    position: relative;
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
+}
+
+.bandish-sahitya-cell {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.95em;
+    grid-row: 3;
+}
+
+.bandish-hold {
+    color: var(--text-faint);
+}
+
+.bandish-unknown {
+    color: var(--text-error);
+    text-decoration: underline dotted;
+}
+
+.bandish-error {
+    color: var(--text-error);
+    font-family: var(--font-monospace);
+    white-space: pre-wrap;
+    padding: 0.5em;
+    border: 1px solid var(--text-error);
+    border-radius: 4px;
+}
+
+.bandish-cluster {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.15em;
+    position: relative;
+    padding-top: 0;
+    padding-bottom: 0.15em;
+}
+
+.bandish-cluster::after {
+    content: "";
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    bottom: 0;
+    height: 0.3em;
+    border-left: 1.5px solid currentColor;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+}
+
+.bandish-cluster-note {
+    position: relative;
+    padding-top: 0.6em;
+    padding-bottom: 0.6em;
+}

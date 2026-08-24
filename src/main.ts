@@ -1,114 +1,134 @@
-import {
-	Editor,
-	MarkdownView,
-	MarkdownFileInfo,
-	Modal,
-	Notice,
-	Plugin,
-} from 'obsidian';
-import {
-	DEFAULT_SETTINGS,
-	MyPluginSettings,
-	SampleSettingTab,
-} from './settings';
+import { Plugin, TFile } from 'obsidian';
+import { BandishPluginSettings, DEFAULT_SETTINGS } from "./settings";
+import { BandishSettingTab } from "./settings-tab";
+import { parseBandish } from './parser';
+import { NewBandishModal, NewBandishResult } from "./new-bandish-modal";
+import { parseRagaBlock } from "./raga-parser";
+import { NewRagaModal, NewRagaResult } from "./new-raga-modal";
+import { renderRaga } from "./raga-renderer";
+import { renderBandish } from "./bandish-renderer";
 
-// Remember to rename these classes and interfaces!
-
-export default class MyPlugin extends Plugin {
-	settings!: MyPluginSettings;
-
-	async onload() {
-		await this.loadSettings();
-
-		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('dice', 'Sample', (_evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status bar text');
-
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-modal-simple',
-			name: 'Open modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			},
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'replace-selected',
-			name: 'Replace selected content',
-			editorCallback: (
-				editor: Editor,
-				_ctx: MarkdownView | MarkdownFileInfo,
-			) => {
-				editor.replaceSelection('Sample editor command');
-			},
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-modal-complex',
-			name: 'Open modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView =
-					this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-				return false;
-			},
-		});
-
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(activeDocument, 'click', (_evt: MouseEvent) => {
-			new Notice('Click');
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(
-			window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000),
-		);
-	}
-
-	onunload() {}
-
-	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			(await this.loadData()) as Partial<MyPluginSettings>,
-		);
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
+function toYamlList(spaceSeparated: string): string {
+  const items = spaceSeparated.trim().split(/\s+/).filter(Boolean);
+  return `[${items.join(", ")}]`;
 }
 
-class SampleModal extends Modal {
-	onOpen() {
-		const { contentEl } = this;
-		contentEl.setText('Woah!');
-	}
+export default class BandishNotationPlugin extends Plugin {
+  settings: BandishPluginSettings;
 
-	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
-	}
+  async loadSettings() {
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+  }
+
+  async saveSettings() {
+    await this.saveData(this.settings);
+  }
+  
+  async onload() {
+    await this.loadSettings();
+    this.addSettingTab(new BandishSettingTab(this.app, this)); 
+
+    this.registerMarkdownCodeBlockProcessor("bandish", (source, el, ctx) => {
+      try {
+	const file = this.app.vault.getAbstractFileByPath(ctx.sourcePath);
+	const frontmatter = file instanceof TFile
+	  ? this.app.metadataCache.getFileCache(file)?.frontmatter
+	  : undefined;
+	const bandish = parseBandish(source, frontmatter);
+	renderBandish(el, bandish, this.settings.script);
+      } catch (err) {
+	el.createEl("div", { text: `Error: ${err instanceof Error ? err.message : String(err)}` });
+      }
+    });
+
+    this.addCommand({
+      id: "new-bandish",
+      name: "New bandish",
+      callback: () => {
+	new NewBandishModal(this.app, (result) => {
+	  this.createBandishNote(result);
+	}).open();
+      },
+    });
+
+    this.registerMarkdownCodeBlockProcessor("raga", (source, el) => {
+      try {
+	const data = parseRagaBlock(source);
+	renderRaga(el, data, this.settings.script);
+      } catch (err) {
+	el.createEl("div", { text: `Error: ${err instanceof Error ? err.message : String(err)}` });
+      }
+    });
+
+    this.addCommand({
+      id: "new-raga",
+      name: "New raga",
+      callback: () => {
+	new NewRagaModal(this.app, (result) => this.createRagaNote(result)).open();
+      },
+    });
+  }
+
+  async createBandishNote(result: NewBandishResult) {
+    const safeName = `${result.raga} - ${result.taal}`.replace(/[\\/:*?"<>|]/g, "");
+    let fileName = `${safeName}.md`;
+    let counter = 1;
+    while (this.app.vault.getAbstractFileByPath(fileName)) {
+      fileName = `${safeName} ${++counter}.md`;
+    }
+
+    const content = `---
+raga: "[[${result.raga}]]"
+taal: ${result.taal}
+composer: ${result.composer}
+tags: [bandish]
+---
+
+\`\`\`bandish
+---
+[sthayi]
+sargam: 
+sahitya: 
+
+[antara]
+sargam: 
+sahitya: 
+\`\`\`
+`;
+
+    const file = (await this.app.vault.create(fileName, content)) as TFile;
+    await this.app.workspace.getLeaf(false).openFile(file);
+  }
+
+  async createRagaNote(result: NewRagaResult) {
+    const safeName = result.name.replace(/[\\/:*?"<>|]/g, "");
+    let fileName = `${safeName}.md`;
+    let counter = 1;
+    while (this.app.vault.getAbstractFileByPath(fileName)) {
+      fileName = `${safeName} ${++counter}.md`;
+    }
+
+    const content = `---
+thaat: ${result.thaat}
+tags: [raga]
+---
+
+\`\`\`raga
+vadi: ${result.vadi}
+samvadi: ${result.samvadi}
+pakad: ${result.pakad}
+varjit_aroha: ${toYamlList(result.varjitAroha)}
+varjit_avaroha: ${toYamlList(result.varjitAvaroha)}
+aroha: ${result.aroha}
+avaroha: ${result.avaroha}
+chalan: 
+\`\`\`
+`;
+
+    const file = (await this.app.vault.create(fileName, content)) as any;
+    await this.app.workspace.getLeaf(false).openFile(file);
+  }
+
+  onunload() {
+  }
 }
