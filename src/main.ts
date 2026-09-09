@@ -16,7 +16,7 @@ function toYamlList(spaceSeparated: string): string {
 }
 
 export default class BandishNotationPlugin extends Plugin {
-  settings: BandishPluginSettings;
+  settings!: BandishPluginSettings;
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());

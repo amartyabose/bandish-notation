@@ -1,4 +1,4 @@
-import { RagaSwaras } from "./raga-parser";
+import { RagaData } from "./raga-parser";
 import { parseSwaraToken, renderSwara, octaveClass, variantClass, stripTrailingComma, Script } from "./swara-glyphs";
 
 function renderSwaraRow(container: HTMLElement, label: string, tokens: string[], script: Script) {

@@ -58,7 +58,7 @@ export function parseBandish(source: string, frontmatter?: Record<string, any>):
 
     const sectionMatch = line.match(/^\[(.+)\]$/);
     if (sectionMatch) {
-      currentSection = { name: sectionMatch[1].toLowerCase(), lines: [] };
+      currentSection = { name: (sectionMatch?.[1] ?? "").toLowerCase(), lines: [] };
       sections.push(currentSection);
       pendingSargam = null;
       continue;

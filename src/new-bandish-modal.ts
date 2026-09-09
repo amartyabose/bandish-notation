@@ -33,7 +33,7 @@ export class NewBandishModal extends Modal {
       .setName("Taal")
       .addDropdown((dropdown) => {
       KNOWN_TAALS.forEach((t) => dropdown.addOption(t, t));
-      dropdown.setValue(this.taal);
+      dropdown.setValue(this.taal ?? "");
       dropdown.onChange((value) => (this.taal = value));
     });
 
@@ -52,7 +52,7 @@ export class NewBandishModal extends Modal {
 	  return; // simplest possible validation for now
 	}
 	this.close();
-	this.onSubmit({ raga: this.raga, taal: this.taal, composer: this.composer });
+	this.onSubmit({ raga: this.raga, taal: this.taal ?? "", composer: this.composer });
       })
     );
   }
