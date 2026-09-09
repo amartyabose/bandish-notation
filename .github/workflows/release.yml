@@ -29,22 +29,29 @@ jobs:
             - name: Check for optional styles
               id: styles
               run: |
-                  [ -f styles.css ] && echo "exists=true" >> "$GITHUB_OUTPUT" || echo "exists=false" >> "$GITHUB_OUTPUT"
+                  if [ -f styles.css ]; then
+                    echo "exists=true" >> "$GITHUB_OUTPUT"
+                    echo "files=main.js manifest.json styles.css" >> "$GITHUB_OUTPUT"
+                    echo "attest_files=main.js"$'\n'"styles.css" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "exists=false" >> "$GITHUB_OUTPUT"
+                    echo "files=main.js manifest.json" >> "$GITHUB_OUTPUT"
+                    echo "attest_files=main.js" >> "$GITHUB_OUTPUT"
+                  fi
 
             - name: Attest build provenance
               uses: actions/attest@v4
               with:
-                  subject-path: |
-                      main.js
-                      ${{ steps.styles.outputs.exists == 'true' && 'styles.css' || '' }}
+                  subject-path: ${{ steps.styles.outputs.attest_files }}
 
             - name: Create release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   tag="${GITHUB_REF#refs/tags/}"
-
+                  
+                  # Removed --draft so BRAT can actually read the release assets on your iPad
                   gh release create "$tag" \
                     --title="$tag" \
-                    --draft \
-                    main.js manifest.json ${{ steps.styles.outputs.exists == 'true' && 'styles.css' || '' }}
+                    ${{ steps.styles.outputs.files }}
+
