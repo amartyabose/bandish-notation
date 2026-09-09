@@ -1,11 +1,11 @@
 {
-	"id": "bandish-notation",
-	"name": "Bandish Notation",
-	"version": "0.1.0",
-	"minAppVersion": "1.0.0",
-	"description": "Write and render swaralipi in several scripts.",
-	"author": "Amartya Bose",
-	"authorUrl": "",
-	"fundingUrl": "",
-	"isDesktopOnly": false
+    "id": "bandish-notation",
+    "name": "Bandish Notation",
+    "version": "0.1.0",
+    "minAppVersion": "1.0.0",
+    "description": "Write and render swaralipi in several scripts.",
+    "author": "Amartya Bose",
+    "authorUrl": "",
+    "fundingUrl": "",
+    "isDesktopOnly": false
 }

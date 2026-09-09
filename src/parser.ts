@@ -16,7 +16,7 @@ export interface Bandish {
   sections: BandishSection[];
 }
 
-function splitVibhags(line: string): string[][] {
+export function splitVibhags(line: string): string[][] {
   return line
     .split("|")
     .map(vibhag => vibhag.trim().split(/\s+/).filter(Boolean));

@@ -5,6 +5,8 @@ import { parseBandish } from './parser';
 import { NewBandishModal, NewBandishResult } from "./new-bandish-modal";
 import { parseRagaBlock } from "./raga-parser";
 import { NewRagaModal, NewRagaResult } from "./new-raga-modal";
+import { parsePracticeBlock } from "./practice-parser";
+import { renderPractice } from "./practice-renderer";
 import { renderRaga } from "./raga-renderer";
 import { renderBandish } from "./bandish-renderer";
 
@@ -67,6 +69,15 @@ export default class BandishNotationPlugin extends Plugin {
 	new NewRagaModal(this.app, (result) => this.createRagaNote(result)).open();
       },
     });
+
+    this.registerMarkdownCodeBlockProcessor("practice", (source, el) => {
+      try {
+	const lines = parsePracticeBlock(source);
+	renderPractice(el, lines, this.settings.script);
+      } catch (err) {
+	el.createEl("div", { text: `Error: ${err instanceof Error ? err.message : String(err)}`, cls: "bandish-error" });
+      }
+    });
   }
 
   async createBandishNote(result: NewBandishResult) {
@@ -78,11 +89,11 @@ export default class BandishNotationPlugin extends Plugin {
     }
 
     const content = `---
-raga: "[[${result.raga}]]"
-taal: ${result.taal}
-composer: ${result.composer}
-tags: [bandish]
----
+    raga: "[[${result.raga}]]"
+    taal: ${result.taal}
+    composer: ${result.composer}
+    tags: [bandish]
+    ---
 
 \`\`\`bandish
 ---
@@ -109,9 +120,9 @@ sahitya:
     }
 
     const content = `---
-thaat: ${result.thaat}
-tags: [raga]
----
+    thaat: ${result.thaat}
+    tags: [raga]
+    ---
 
 \`\`\`raga
 vadi: ${result.vadi}

@@ -10,7 +10,7 @@ import {
   Script,
 } from "./swara-glyphs";
 
-function renderSargamCell(rawToken: string, script: Script): HTMLElement {
+export function renderSargamCell(rawToken: string, script: Script): HTMLElement {
   const cell = document.createElement("div");
   cell.addClass("bandish-sargam-cell");
 
