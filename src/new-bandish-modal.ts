@@ -32,7 +32,9 @@ export class NewBandishModal extends Modal {
     new Setting(contentEl)
       .setName("Taal")
       .addDropdown((dropdown) => {
-      KNOWN_TAALS.forEach((t) => dropdown.addOption(t, t));
+      KNOWN_TAALS.forEach((t) => {
+	dropdown.addOption(t, t);
+      });
       dropdown.setValue(this.taal ?? "");
       dropdown.onChange((value) => (this.taal = value));
     });

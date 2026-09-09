@@ -11,7 +11,7 @@ import {
 } from "./swara-glyphs";
 
 export function renderSargamCell(rawToken: string, script: Script): HTMLElement {
-  const cell = document.createElement("div");
+  const cell = createDiv() as HTMLElement;
   cell.addClass("bandish-sargam-cell");
 
   if (rawToken === "-") {
@@ -32,7 +32,7 @@ export function renderSargamCell(rawToken: string, script: Script): HTMLElement 
     cell.addClass("bandish-cluster");
     token.split("+").forEach((part) => {
       const swara = parseSwaraToken(part);
-      const sub = document.createElement("span");
+      const sub = createSpan();
       sub.addClass("bandish-cluster-note");
       if (swara) {
 	sub.setText(renderSwara(swara, script));
@@ -72,11 +72,11 @@ function renderVibhag(
   marker: string,
   script: Script
 ): HTMLElement {
-  const vibhagEl = document.createElement("div");
+  const vibhagEl = createDiv() as HTMLElement;
   vibhagEl.addClass("bandish-vibhag");
   vibhagEl.style.gridTemplateColumns = `repeat(${sargamTokens.length}, minmax(2em, 1fr))`;
 
-  const markerEl = document.createElement("div");
+  const markerEl = createDiv() as HTMLElement;
   markerEl.addClass("bandish-marker");
   markerEl.setText(marker);
   markerEl.style.gridColumn = `1 / span ${sargamTokens.length}`;
@@ -87,7 +87,7 @@ function renderVibhag(
   });
 
   sahityaTokens.forEach((token) => {
-    const cell = document.createElement("div");
+    const cell = createDiv() as HTMLElement;
     cell.addClass("bandish-sahitya-cell");
     cell.setText(token === "-" ? "–" : token);
     vibhagEl.appendChild(cell);
@@ -97,7 +97,7 @@ function renderVibhag(
 }
 
 function renderLine(line: BandishLine, taal: Taal, script: Script): HTMLElement {
-  const lineEl = document.createElement("div");
+  const lineEl = createDiv() as HTMLElement;
   lineEl.addClass("bandish-line");
 
   const vibhagCount = Math.max(line.sargam.length, line.sahitya.length);
@@ -124,7 +124,7 @@ export function renderBandish(container: HTMLElement, bandish: Bandish, script: 
     meta.createSpan({ text: bandish.composer, cls: "bandish-meta-item bandish-composer" });
 
   for (const section of bandish.sections) {
-    container.createEl("div", {
+    container.createDiv({
       text: section.name.charAt(0).toUpperCase() + section.name.slice(1),
       cls: "bandish-section-title",
     });

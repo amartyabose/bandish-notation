@@ -43,9 +43,9 @@ export function parseBandish(source: string, frontmatter?: Record<string, any>):
     header[key] = value;
   }
 
-  const taal = frontmatter?.taal ?? header.taal;
-  const raga = frontmatter?.raga ?? header.raga;
-  const composer = frontmatter?.composer ?? header.composer;
+  const taal = (frontmatter?.taal as string | undefined) ?? header.taal;
+  const raga = (frontmatter?.raga as string | undefined) ?? header.raga;
+  const composer = (frontmatter?.composer as string | undefined) ?? header.composer;
 
   const sections: BandishSection[] = [];
   let currentSection: BandishSection | null = null;
@@ -87,5 +87,10 @@ export function parseBandish(source: string, frontmatter?: Record<string, any>):
     }
   }
 
-  return {raga, taal, composer, sections,};
+  return {
+    raga: raga ?? "Unknown", // Good practice to fallback raga too if it's string | undefined
+    taal: taal ?? "",        // Forces undefined to become a clean empty string
+    composer: composer ?? "Unknown",
+    sections,
+  };
 }

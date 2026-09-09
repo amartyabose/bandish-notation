@@ -19,7 +19,7 @@ export default class BandishNotationPlugin extends Plugin {
   settings!: BandishPluginSettings;
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, (await this.loadData()) as Partial<BandishPluginSettings>);
   }
 
   async saveSettings() {
@@ -48,7 +48,15 @@ export default class BandishNotationPlugin extends Plugin {
       name: "New bandish",
       callback: () => {
 	new NewBandishModal(this.app, (result) => {
-	  this.createBandishNote(result);
+	  // 1. The outer function is strictly synchronous and returns void.
+	  // 2. We spin up an isolated async background scope immediately.
+	  void (async () => {
+            try {
+              await this.createBandishNote(result);
+            } catch (err) {
+              console.error("Failed to create Bandish note:", err);
+            }
+	  })();
 	}).open();
       },
     });
@@ -66,7 +74,9 @@ export default class BandishNotationPlugin extends Plugin {
       id: "new-raga",
       name: "New raga",
       callback: () => {
-	new NewRagaModal(this.app, (result) => this.createRagaNote(result)).open();
+	new NewRagaModal(this.app, (result) => {
+	  void this.createRagaNote(result);
+	}).open();
       },
     });
 
@@ -107,7 +117,7 @@ sahitya:
 \`\`\`
 `;
 
-    const file = (await this.app.vault.create(fileName, content)) as TFile;
+    const file = await this.app.vault.create(fileName, content);
     await this.app.workspace.getLeaf(false).openFile(file);
   }
 
@@ -136,7 +146,7 @@ chalan:
 \`\`\`
 `;
 
-    const file = (await this.app.vault.create(fileName, content)) as any;
+    const file = await this.app.vault.create(fileName, content);
     await this.app.workspace.getLeaf(false).openFile(file);
   }
 
